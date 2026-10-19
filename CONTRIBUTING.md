@@ -44,7 +44,7 @@ You can also run hooks manually:
 **CI checks** (independent of pre-commit, run on every PR):
 - `cargo test` — all unit and integration tests
 - `cargo doc --no-deps` with `-D warnings` — documentation compiles
-- `./scripts/check_wasm_size.sh` — WASM size within 200 KB budget
+- `./scripts/check_wasm_size.sh` — WASM size within the budget in `.github/wasm-size-limit` (see "Registry budgets" under Step 2.4)
 - `docker build -t stellar-wrap-contract .` — Docker build works
 - `cargo audit` — no security advisories at or above medium severity
 - `cargo deny check` — licenses, duplicate crates, and advisories match `deny.toml` (exceptions are documented there)
@@ -79,6 +79,46 @@ Documentation updates are required alongside code changes in the following cases
 * **Contributor workflow change**: If `CONTRIBUTING.md` describes a process that changes (e.g., a new CI check is added, a new hook is configured), update `CONTRIBUTING.md` to reflect the new workflow.
 
 **Example**: When adding a test that confirms `get_wrap` returns `None` before initialization (Issue #244), the "Read methods" documentation in `README.md` was updated to document this behavior for client developers.
+
+**Step 2.4: Where New Features Belong (v2 Workspace)**
+
+The workspace is split so the registry stays small. Before writing code, decide which component owns the feature by walking this tree in order and stopping at the first "yes":
+
+```text
+Does it change soulbound wrap record state?
+(mint, mint_wrap, transfer_wrap, burn_wrap, lifecycle transitions,
+ DataKey::Wrap / WrapCount / LatestPeriod)
+├── yes → REGISTRY: src/ (the root stellar_wrap_contract crate)
+└── no
+    Is it optional or economic?
+    (staking, fees, rewards, opt-in add-ons, token movement that
+     does not touch wrap records)
+    ├── yes → SATELLITE: contracts/staking/ or proxy/
+    └── no
+        Is it aggregation?
+        (indexing, rollups, cross-record or cross-event summaries,
+         reconciliation of on-chain events)
+        ├── yes → PIPELINE: pipeline/
+        └── no → Is it presentation only?
+                 ├── yes → FRONTEND: frontend/
+                 └── no → Open an issue to discuss before coding.
+```
+
+Rules of thumb:
+
+- Registry code must not gain behaviour that a satellite or the pipeline can provide from the outside (events, read-only queries, or a separate contract that calls the registry).
+- A satellite may call the registry, but the registry must not depend on a satellite.
+- Aggregation belongs off-chain. The pipeline reads events; it does not add on-chain storage for derived totals.
+
+**Registry budgets**
+
+Any PR that touches `src/` must stay within these limits:
+
+- **WASM size:** the release build must be within the byte limit in `.github/wasm-size-limit` (currently `225000`). `scripts/check_wasm_size.sh` enforces this in CI. Do not raise the limit in the same PR as a feature; open a separate PR that justifies it.
+- **Entrypoints:** the registry exposes only record-state operations and their reads. Each new entrypoint needs the justification described in the PR template and an explicit row in the pause-coverage table.
+- **Instructions and memory:** the repository does not pin a per-call instruction or memory budget. For any new or changed registry entrypoint, include the simulated resource usage (instructions, read/write bytes, and fee estimate from `simulateTransaction` or `stellar contract invoke` simulation) for the old and new code in the PR description.
+- **Storage:** each new persistent key needs a `DataKey` variant, a TTL decision, and a row in `STORAGE.md`.
+- **Dependencies:** do not add a crate to the registry's `[dependencies]` unless the PR explains why the logic cannot live in a satellite or the pipeline.
 
 **Step 3: Submission**
 * Open a **Pull Request (PR)** to the `main` branch of the upstream repository.

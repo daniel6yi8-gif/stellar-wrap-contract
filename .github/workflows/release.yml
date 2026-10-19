@@ -71,7 +71,7 @@ jobs:
           echo "Open security-labelled issues: $COUNT"
           if [ "$COUNT" -gt 0 ]; then
             echo "blocking=true" >> "$GITHUB_OUTPUT"
-            echo "::error::Release blocked: $COUNT open security-labelled issue(s). See SECURITY_AUDIT_CHECKLIST.md blocking findings."
+            echo "::error::Release blocked: $COUNT open security-labelled issue(s). See docs/security/security-audit-checklist.md blocking findings."
             gh issue list \
               --repo "${{ github.repository }}" \
               --label security \

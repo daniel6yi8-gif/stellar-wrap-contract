@@ -3117,7 +3117,7 @@ fn test_get_wrap_nonexistent_user_returns_none() {
 
 #[test]
 fn test_storage_md_documents_every_datakey_variant() {
-    let storage_md = include_str!("../STORAGE.md");
+    let storage_md = include_str!("../docs/storage.md");
 
     let all_datakey_variants = [
         "Admin",
@@ -3165,7 +3165,7 @@ fn test_storage_md_documents_every_datakey_variant() {
     for variant in all_datakey_variants {
         assert!(
             storage_md.contains(variant),
-            "STORAGE.md must document DataKey variant `{}`",
+            "docs/storage.md must document DataKey variant `{}`",
             variant
         );
     }

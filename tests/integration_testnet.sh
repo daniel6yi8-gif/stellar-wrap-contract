@@ -111,7 +111,7 @@ echo "        ✓ Initialized (admin=${DEPLOYER_ADDRESS})"
 # signature over the canonical payload. Here we call add_archetype and
 # demonstrate that the CLI invocation pattern is correct.
 # Minting requires a valid 64-byte signature from the admin private key —
-# see the TypeScript signing example in SECURITY_RECOMMENDATIONS.md.
+# see the TypeScript signing example in docs/security/security-recommendations.md.
 #
 # The snippet below shows the CLI shape; replace <SIGNATURE_HEX> with a
 # real signature produced by your signing service.

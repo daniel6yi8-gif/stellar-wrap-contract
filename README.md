@@ -956,7 +956,7 @@ stellar contract invoke \
 Expected output: `NEXT_VERSION` (or whatever version was passed to `migrate`).
 
 > If `migrate` is called twice with the same version, it panics with
-> `MigrationAlreadyApplied` (code 7) — see [ERRORS.md](./ERRORS.md).
+> `MigrationAlreadyApplied` (code 7) — see [errors.md](./docs/errors.md).
 
 #### Smoke check 4 — Mint a test wrap
 
@@ -1071,7 +1071,7 @@ All Makefile targets are listed below with descriptions and when to use them.
 |---|---|---|
 | `build` | Compile the contract to WASM (release profile, wasm32 target). Alias for `wasm-build`. | Standard build for deployment or testing. |
 | `wasm-build` | Explicit WASM release build (output: `target/wasm32-unknown-unknown/release/*.wasm`). | When you specifically need the WASM artifact. |
-| `check-wasm-size` | Measure compiled WASM size against the 200 KB budget (see `SIGNATURE_VERIFICATION_DECISION.md`). | Before merging to verify the contract fits the size budget. |
+| `check-wasm-size` | Measure compiled WASM size against the 200 KB budget (see `docs/adr/0001-in-guest-ed25519.md`). | Before merging to verify the contract fits the size budget. |
 | `wasm-size` | Alias for `check-wasm-size`. | Same as `check-wasm-size`. |
 | `soroban-build` | Build via the Stellar CLI (`stellar contract build`). | Alternative to `cargo build --target wasm32-unknown-unknown` when using the Stellar CLI. |
 | `wasm-optimize` | Build the optimized WASM artifact using the Stellar CLI optimizer. Writes to `target/wasm32-unknown-unknown/release/stellar_wrap_contract.optimized.wasm`. Requires Stellar CLI. | Before a production deployment to reduce WASM size. |
@@ -1256,7 +1256,7 @@ The Soroban SDK often tracks Rust nightly or a specific stable release. If you s
 Ensure `wasm32-unknown-unknown` is the active target and no host-specific native dependencies leak in. The `Dockerfile` provides a fully isolated environment for reproducible WASM builds.
 ## Mainnet deployment
 
-Before deploying to mainnet, review the release checklist in [MAINNET_RELEASE_CHECKLIST.md](MAINNET_RELEASE_CHECKLIST.md). It covers tests, optimized builds, release artifact hash verification, signer backup, initialization, and rollback guidance.
+Before deploying to mainnet, review the release checklist in [docs/operations/mainnet-release-checklist.md](docs/operations/mainnet-release-checklist.md). It covers tests, optimized builds, release artifact hash verification, signer backup, initialization, and rollback guidance.
 ### Gas Analysis
 
 The contract includes gas analysis tests that measure CPU instructions and memory usage

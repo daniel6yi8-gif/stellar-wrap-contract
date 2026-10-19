@@ -151,8 +151,12 @@ jobs:
           fi
           echo "Builds are reproducible: hashes match"
 
+  upgrade-compat:
+    needs: preflight
+    uses: ./.github/workflows/upgrade-compat.yml
+
   release:
-    needs: [security-gate, verify-reproducible]
+    needs: [security-gate, verify-reproducible, upgrade-compat]
     if: needs.security-gate.outputs.blocking == 'false'
     runs-on: ubuntu-latest
     permissions:
